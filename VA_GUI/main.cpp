@@ -1,4 +1,4 @@
-// Basic GUI in C++
+// Virtual Assisntant GUI in C++
 
 #include <Windows.h>
 #include <Python.h>
@@ -94,7 +94,7 @@ void AddMenus(HWND hWnd) {
 	AppendMenu(hFileMenu, MF_STRING, FILE_MENU_EXIT, L"Exit");
 
 	// "File" -> "Open" submenu
-	AppendMenu(hSubMenu, MF_STRING, CHANGE_TITLE, L"Change Title");
+	AppendMenu(hSubMenu, MF_STRING, NULL, L"Submenu Item");
 
 	// "Help" header menu
 	AppendMenu(hMenu, MF_STRING, 2, L"Help");
@@ -106,21 +106,32 @@ void AddMenus(HWND hWnd) {
 void AddControls(HWND hWnd) {
 	CreateWindowW(L"Static", L"Enter text here: ", WS_VISIBLE | WS_CHILD | SS_CENTER, 200, 100, 100, 50, hWnd, NULL, NULL, NULL);
 	hEdit = CreateWindowW(L"Edit", L"...", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL, 200, 152, 100, 50, hWnd, NULL, NULL, NULL);
+	CreateWindowW(L"Button", L"Change Title", WS_VISIBLE | WS_CHILD, 200, 204, 100, 25, hWnd, (HMENU)CHANGE_TITLE, NULL, NULL);
 }
 
 // Function to execute webcrawler Python script
 void WebCrawler() {
+	// Create a function to write variable data to a file for the Python script to read
+
 	FILE* fp;
+
+	// Change local path variables for Python execution
+	const char* fModulePath = "C:\\Users\\Chris\\source\\repos\\Python\\webCrawler\\";
+	const char* fLibPath = "C:\\Users\\Chris\\source\\repos\\Python\\webCrawler\\venv\\Lib\\site-packages\\";
+	const char* fMainPath = "C:\\Users\\Chris\\source\\repos\\Python\\webCrawler\\main.py";
 
 	// Initialize the python instance
 	Py_Initialize();
 
+	// Set paths for Python modules and libraries
 	PyObject* sysPath = PySys_GetObject((char*)"path");
-	PyList_Append(sysPath, PyUnicode_FromString("D:\\Chris\\source\\repos\\Python\\webCrawler\\"));
+	PyList_Append(sysPath, PyUnicode_FromString(fModulePath));
+	PyList_Append(sysPath, PyUnicode_FromString(fLibPath));
 
-	fp = _Py_fopen("D:\\Chris\\source\\repos\\Python\\webCrawler\\main.py", "r");
+	// Open and run main Python script
+	fp = _Py_fopen(fMainPath, "r");
 
-	PyRun_SimpleFile(fp, "D:\\Chris\\source\\repos\\Python\\webCrawler\\main.py");
+	PyRun_SimpleFile(fp, fMainPath);
 
 	// Close the python instance
 	Py_Finalize();
