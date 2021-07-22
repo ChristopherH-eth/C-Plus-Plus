@@ -1,12 +1,13 @@
 // Virtual Assisntant GUI in C++
 
 #include <Windows.h>
+#include <stdlib.h>
 #include <Python.h>
 
 #define FILE_MENU_NEW 1
 #define FILE_MENU_OPEN 2
 #define FILE_MENU_EXIT 3
-#define CHANGE_TITLE 4
+#define SUBMIT_BUTTON 4
 
 // Globals
 LRESULT CALLBACK WindowProcedure(HWND, UINT, WPARAM, LPARAM);
@@ -16,7 +17,7 @@ void AddControls(HWND);
 void WebCrawler();
 
 HMENU hMenu;
-HWND hEdit;
+HWND hJobTitle, hLocation, hOut;
 
 // Main function
 int main(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdshow) {
@@ -57,14 +58,26 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		case FILE_MENU_EXIT:
 			DestroyWindow(hWnd);
 			break;
-		case CHANGE_TITLE:
-			wchar_t text[100];
-			GetWindowTextW(hEdit, text, 100);
+		case SUBMIT_BUTTON:
+			wchar_t jobTitle[100], location[100], out[500];
+
+			GetWindowText(hJobTitle, jobTitle, 100);
+			GetWindowText(hLocation, location, 100);
+			GetWindowText(hOut, out, 500);
+
+			// Text box output
+			wcscat_s(out, L"Searching for ");
+			wcscat_s(out, jobTitle);
+			wcscat_s(out, L" positions in ");
+			wcscat_s(out, location);
+			wcscat_s(out, L".");
+
+			SetWindowText(hOut, out);
+
 			// Check user input for webcrawler request
-			if (wcscmp(text, L"run webcrawler") == 0) {
+			if (wcscmp(jobTitle, L"run webcrawler") == 0) {
 				WebCrawler();
 			}
-			SetWindowTextW(hWnd, text);
 			break;
 		}
 		break;
@@ -104,9 +117,19 @@ void AddMenus(HWND hWnd) {
 
 // Function to add controls to a window
 void AddControls(HWND hWnd) {
-	CreateWindowW(L"Static", L"Enter text here: ", WS_VISIBLE | WS_CHILD | SS_CENTER, 200, 100, 100, 50, hWnd, NULL, NULL, NULL);
-	hEdit = CreateWindowW(L"Edit", L"...", WS_VISIBLE | WS_CHILD | WS_BORDER | ES_MULTILINE | ES_AUTOVSCROLL, 200, 152, 100, 50, hWnd, NULL, NULL, NULL);
-	CreateWindowW(L"Button", L"Change Title", WS_VISIBLE | WS_CHILD, 200, 204, 100, 25, hWnd, (HMENU)CHANGE_TITLE, NULL, NULL);
+	// Job Title
+	CreateWindowW(L"Static", L"Job Title: ", WS_VISIBLE | WS_CHILD, 100, 50, 98, 38, hWnd, NULL, NULL, NULL);
+	hJobTitle = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 200, 50, 98, 38, hWnd, NULL, NULL, NULL);
+
+	// Location
+	CreateWindowW(L"Static", L"Location: ", WS_VISIBLE | WS_CHILD, 100, 90, 98, 38, hWnd, NULL, NULL, NULL);
+	hLocation = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 200, 90, 98, 38, hWnd, NULL, NULL, NULL);
+
+	// Submit button
+	CreateWindowW(L"Button", L"Submit", WS_VISIBLE | WS_CHILD, 150, 130, 98, 38, hWnd, (HMENU)SUBMIT_BUTTON, NULL, NULL);
+
+	// Text box output
+	hOut = CreateWindowW(L"Edit", L"", WS_VISIBLE | WS_CHILD | WS_BORDER, 100, 200, 300, 200, hWnd, NULL, NULL, NULL);
 }
 
 // Function to execute webcrawler Python script
