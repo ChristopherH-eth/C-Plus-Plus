@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <stdlib.h>
 #include <Python.h>
+#include <C:\Users\chris\source\repos\C-Plus-Plus\VA_GUI\VA_GUI\filecontrols.h>
 
 #define FILE_MENU_NEW 1
 #define FILE_MENU_OPEN 2
@@ -61,6 +62,7 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 		case SUBMIT_BUTTON:
 			wchar_t jobTitle[100], location[100], out[500];
 
+			// Get user input
 			GetWindowText(hJobTitle, jobTitle, 100);
 			GetWindowText(hLocation, location, 100);
 			GetWindowText(hOut, out, 500);
@@ -74,10 +76,12 @@ LRESULT CALLBACK WindowProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
 
 			SetWindowText(hOut, out);
 
-			// Check user input for webcrawler request
-			if (wcscmp(jobTitle, L"run webcrawler") == 0) {
-				WebCrawler();
-			}
+			// Copy user input to file controls function
+			wcscpy_s(fJobTitle, jobTitle);
+			wcscpy_s(fLocation, location);
+
+			MakeFile();
+			WebCrawler();
 			break;
 		}
 		break;
